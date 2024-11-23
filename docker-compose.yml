@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:13
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sahim
+      POSTGRES_USER: sahim
+      POSTGRES_PASSWORD: 12345678
+    networks:
+      - mynetwork
+    ports:
+      - "5432:5432"
+
+  web:
+    build:
+      context: ./sahim_project
+    command: >
+      sh -c "
+      sleep 10 &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - ./sahim_project:/app
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+volumes:
+  db_data:
+
+networks:
+  mynetwork:
